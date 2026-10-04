@@ -1,0 +1,38 @@
+{
+  "name": "buglife",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n server,client -c cyan,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
+    "build": "npm run build --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:generate": "npm run db:generate -w server",
+    "db:migrate": "npm run db:migrate -w server",
+    "test:auth": "npm run test:auth -w server",
+    "test:phase2": "npm run test:phase2 -w server",
+    "test:realtime": "npm run test:realtime -w server",
+    "test:gamification": "npm run test:gamification -w server",
+    "seed": "npm run seed -w server",
+    "test:polish": "npm run test:polish -w server",
+    "test": "npm run test:auth && npm run test:phase2 && npm run test:realtime && npm run test:gamification && npm run test:polish"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "concurrently": "^9.2.0",
+    "eslint": "^9.39.0",
+    "eslint-config-prettier": "^10.1.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "prettier": "^3.6.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.0"
+  }
+}

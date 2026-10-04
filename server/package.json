@@ -1,0 +1,44 @@
+{
+  "name": "@buglife/server",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.test.json",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:dev": "prisma migrate dev",
+    "test:auth": "tsx --test tests/auth.test.ts",
+    "test:phase2": "tsx --test tests/phase2.test.ts",
+    "test:realtime": "tsx --test tests/realtime.test.ts",
+    "test:gamification": "tsx --test tests/gamification.test.ts",
+    "seed": "tsx prisma/seed.ts",
+    "test:polish": "tsx --test tests/polish.test.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.4.0",
+    "socket.io": "^4.8.4",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.3.0",
+    "@types/node": "^24.10.0",
+    "prisma": "6.19.0",
+    "tsx": "^4.20.0"
+  }
+}
