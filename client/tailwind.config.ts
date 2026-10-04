@@ -35,6 +35,13 @@ export default {
           foreground: 'hsl(var(--card-foreground))',
         },
         sidebar: 'hsl(var(--sidebar))',
+        paper: {
+          DEFAULT: 'hsl(var(--paper))',
+          card: 'hsl(var(--paper-card))',
+          border: 'hsl(var(--paper-border))',
+          stamp: 'hsl(var(--paper-stamp))',
+          ink: 'hsl(var(--paper-ink))',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -43,6 +50,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        serif: ['Georgia', 'Cambria', '"Times New Roman"', 'Times', 'serif'],
       },
     },
   },

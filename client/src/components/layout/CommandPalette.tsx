@@ -139,6 +139,7 @@ export function CommandPalette() {
                   ['Create Bug', () => setMode('create')],
                   ['Search Bug', () => input.current?.focus()],
                   ['Open Project', () => go('/projects')],
+                  ['Connections', () => go('/connections')],
                   ['My Bugs', () => go('/my-bugs')],
                   ['Notifications', () => go('/notifications')],
                   ['Leaderboard', () => go('/leaderboard')],

@@ -13,6 +13,8 @@ import { MyBugs } from '@/pages/MyBugs';
 import { Notifications } from '@/pages/Notifications';
 import { Leaderboard } from '@/pages/Leaderboard';
 import { Profile } from '@/pages/Profile';
+import { Connections } from '@/pages/Connections';
+
 export function App() {
   return (
     <Routes>
@@ -31,6 +33,8 @@ export function App() {
           <Route path="/my-bugs" element={<MyBugs />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/connections" element={<Connections />} />
+          <Route path="/workspace/connections" element={<Connections />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />

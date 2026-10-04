@@ -20,8 +20,9 @@
     "test:realtime": "npm run test:realtime -w server",
     "test:gamification": "npm run test:gamification -w server",
     "seed": "npm run seed -w server",
+    "test:connections": "npm run test:connections -w server",
     "test:polish": "npm run test:polish -w server",
-    "test": "npm run test:auth && npm run test:phase2 && npm run test:realtime && npm run test:gamification && npm run test:polish"
+    "test": "npm run test:auth && npm run test:phase2 && npm run test:realtime && npm run test:gamification && npm run test:connections && npm run test:polish"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",

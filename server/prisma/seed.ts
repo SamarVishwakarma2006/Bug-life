@@ -132,11 +132,97 @@ async function main() {
       data: { nextBugNumber: (highest._max.number ?? 0) + 1 },
     });
   });
+
+  // Seed isolated user and project for multi-tenant isolation testing
+  const isolatedProjectId = 'clbuglifedemoproject000002';
+  const charlie = await db.user.upsert({
+    where: { email: 'charlie@isolated.dev' },
+    update: {},
+    create: {
+      name: 'Charlie',
+      email: 'charlie@isolated.dev',
+      passwordHash,
+    },
+  });
+
+  await db.$transaction(async (tx) => {
+    await tx.project.upsert({
+      where: { id: isolatedProjectId },
+      update: {},
+      create: {
+        id: isolatedProjectId,
+        name: 'Quantum Canvas',
+        key: 'QC',
+        description: 'An isolated creative coding playground for Charlie.',
+        ownerId: charlie.id,
+      },
+    });
+
+    await tx.projectMember.upsert({
+      where: {
+        userId_projectId: { userId: charlie.id, projectId: isolatedProjectId },
+      },
+      update: {},
+      create: {
+        userId: charlie.id,
+        projectId: isolatedProjectId,
+        role: 'OWNER',
+      },
+    });
+
+    const charlieBugTitles = [
+      'Canvas WebGL context lost during tab switch',
+      'Shader compiler warning on mobile Safari',
+      'Export high-DPI image feature request',
+    ];
+
+    for (let i = 0; i < charlieBugTitles.length; i++) {
+      const number = i + 1;
+      if (
+        await tx.bug.findUnique({
+          where: { projectId_number: { projectId: isolatedProjectId, number } },
+        })
+      ) {
+        continue;
+      }
+      const isResolved = i === 1;
+      await tx.bug.create({
+        data: {
+          projectId: isolatedProjectId,
+          number,
+          title: charlieBugTitles[i]!,
+          description: `Isolated project report for ${charlieBugTitles[i]}.`,
+          priority: 'MEDIUM',
+          type: 'UI',
+          status: isResolved ? 'RESOLVED' : 'IN_PROGRESS',
+          position: number * 1024,
+          labels: ['graphics', 'isolated'],
+          reporterId: charlie.id,
+          assigneeId: charlie.id,
+          resolvedAt: isResolved ? new Date() : null,
+          resolvedById: isResolved ? charlie.id : null,
+        },
+      });
+    }
+
+    const isolatedHighest = await tx.bug.aggregate({
+      where: { projectId: isolatedProjectId },
+      _max: { number: true },
+    });
+    await tx.project.update({
+      where: { id: isolatedProjectId },
+      data: { nextBugNumber: (isolatedHighest._max.number ?? 0) + 1 },
+    });
+  });
+
   console.log(
     'Demo ready: Sagar Drishti (SD), 15 varied bugs, comments, and six achievements.',
   );
   console.log(
     'samar@demo.dev (owner), rahul@demo.dev (reviewer), aryan@demo.dev (developer). Initial password: password123. Existing accounts and bugs are preserved.',
+  );
+  console.log(
+    'Isolated demo user: charlie@isolated.dev in project Quantum Canvas (QC). Password: password123.',
   );
 }
 try {

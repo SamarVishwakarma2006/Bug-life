@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Network,
   Settings,
   Trophy,
   UserRound,
@@ -24,6 +25,7 @@ import { CommandPalette } from './CommandPalette';
 const navigation = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/projects', label: 'Projects', icon: FolderKanban },
+  { to: '/connections', label: 'Connections', icon: Network },
   { to: '/my-bugs', label: 'My Bugs', icon: Bug },
   { to: '/notifications', label: 'Notifications', icon: Bell },
   { to: '/leaderboard', label: 'Leaderboard', icon: Trophy },

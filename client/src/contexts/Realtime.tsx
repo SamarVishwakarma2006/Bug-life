@@ -65,6 +65,41 @@ export function Realtime({ children }: { children: ReactNode }) {
         if (data.recipientId === user?.id && data.xpGained > 0) setReward(data);
       },
     );
+    socket.on('connections:fix', (newFix: import('@/types/connections').RecentFix) => {
+      cache.setQueriesData<import('@/types/connections').ConnectionsResponse>(
+        { queryKey: ['connections'] },
+        (old) => {
+          if (!old) return old;
+          if (old.recentFixes.some((f) => f.bugId === newFix.bugId)) return old;
+
+          const edgeId = `approved:${newFix.bugId}:${newFix.resolver.id}:${newFix.reviewer.id}`;
+          const newEdge: import('@/types/connections').ConnectionEdge = {
+            id: edgeId,
+            source: newFix.resolver.id,
+            target: newFix.reviewer.id,
+            kind: 'REVIEWED_APPROVED',
+            bugKey: newFix.bugKey,
+            priority: newFix.priority,
+            xp: newFix.xpAwarded
+              ? newFix.priority === 'CRITICAL'
+                ? 50
+                : newFix.priority === 'HIGH'
+                ? 35
+                : newFix.priority === 'MEDIUM'
+                ? 20
+                : 10
+              : 0,
+            at: newFix.resolvedAt,
+          };
+
+          return {
+            ...old,
+            edges: [newEdge, ...old.edges.filter((e) => e.id !== edgeId)],
+            recentFixes: [newFix, ...old.recentFixes],
+          };
+        },
+      );
+    });
     return () => {
       socket.disconnect();
     };

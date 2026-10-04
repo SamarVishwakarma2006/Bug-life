@@ -20,6 +20,7 @@ export const transitions: Record<BugStatus, BugStatus[]> = {
 const include = {
   reporter: { select: memberUser },
   assignee: { select: memberUser },
+  resolvedBy: { select: memberUser },
   project: { select: { id: true, key: true, name: true } },
   _count: { select: { comments: true } },
 } satisfies Prisma.BugInclude;
@@ -257,16 +258,55 @@ export async function move(
       `BUG_${status}`,
       `${bug.project.key}-${bug.number} moved to ${status.replaceAll('_', ' ')}.`,
     );
-    if (reward) {
+    if (status === 'RESOLVED') {
       const resolved = await tx.bug.findUniqueOrThrow({
         where: { id },
         include,
       });
-      queueEvent(tx, {
-        room: `project:${bug.projectId}`,
-        name: 'bug:resolved',
-        data: { bug: resolved, ...reward },
+
+      // Emit connections:fix to the user-level room of each member in this project
+      const projectMembers = await tx.projectMember.findMany({
+        where: { projectId: bug.projectId },
+        select: { userId: true },
       });
+
+      const reviewerUser = await tx.user.findUnique({
+        where: { id: actor },
+        select: { id: true, name: true },
+      });
+
+      const fixEventPayload = {
+        bugId: resolved.id,
+        bugKey: `${bug.project.key}-${resolved.number}`,
+        title: resolved.title,
+        priority: resolved.priority,
+        xpAwarded: resolved.xpAwarded,
+        resolvedAt: resolved.resolvedAt,
+        resolver: resolved.assignee
+          ? { id: resolved.assignee.id, name: resolved.assignee.name }
+          : resolved.resolvedBy
+          ? { id: resolved.resolvedBy.id, name: resolved.resolvedBy.name }
+          : { id: '', name: 'Developer' },
+        reviewer: reviewerUser
+          ? { id: reviewerUser.id, name: reviewerUser.name }
+          : { id: actor, name: 'Reviewer' },
+      };
+
+      for (const member of projectMembers) {
+        queueEvent(tx, {
+          room: `user:${member.userId}`,
+          name: 'connections:fix',
+          data: fixEventPayload,
+        });
+      }
+
+      if (reward) {
+        queueEvent(tx, {
+          room: `project:${bug.projectId}`,
+          name: 'bug:resolved',
+          data: { bug: resolved, ...reward },
+        });
+      }
       return resolved;
     }
     return updated;

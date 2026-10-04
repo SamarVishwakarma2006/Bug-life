@@ -9,6 +9,8 @@ import { bugRouter } from './routes/bugs.js';
 import { notificationRouter } from './routes/notifications.js';
 import { dashboardRouter } from './routes/dashboard.js';
 import { attachmentRouter } from './routes/attachments.js';
+import { feedbackRouter } from './routes/feedback.js';
+import { connectionsRouter } from './routes/connections.js';
 
 export const app = express();
 app.disable('x-powered-by');
@@ -20,6 +22,8 @@ app.use('/api/auth', authRouter);
 app.use('/api/projects', projectRouter);
 app.use('/api/bugs', bugRouter);
 app.use('/api/notifications', notificationRouter);
+app.use('/api/feedback', feedbackRouter);
+app.use('/api/connections', connectionsRouter);
 app.use('/api', dashboardRouter);
 app.use(attachmentRouter);
 app.use((_req, res) =>

@@ -16,6 +16,7 @@
     "test:realtime": "tsx --test tests/realtime.test.ts",
     "test:gamification": "tsx --test tests/gamification.test.ts",
     "seed": "tsx prisma/seed.ts",
+    "test:connections": "tsx --test tests/connections.test.ts",
     "test:polish": "tsx --test tests/polish.test.ts"
   },
   "dependencies": {

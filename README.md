@@ -19,6 +19,21 @@ A fast, real-time collaborative bug tracker with gamification designed for stude
 
 ## Features
 
+* **Scroll-Tear Landing Page (`/`)**:
+  * 5 immersive chapters: Hero Cover, 3D Flip Postcard with interactive flip animation, Shuffling Polaroids showcasing core features, Lifecycle Route Map visualizer, and interactive Postcard Feedback Form.
+  * Warm paper design system tokens (`paper-warm`, `paper-torn`, `paper-stamp`, `stamp-border`).
+  * Direct submissions to rate-limited backend endpoint `POST /api/feedback`.
+  * Automatic redirect to `/dashboard` for logged-in users. Respects `prefers-reduced-motion`.
+* **Scoped Team Connections Graph (`/connections`)**:
+  * Pure SVG radial network graph (zero heavy external graph or D3-geo dependencies).
+  * Deterministic concentric rings: Center (logged-in user), Ring 1 (direct collaborators), Ring 2 (shared projects), Ring 3 (extended team network).
+  * Visual role badges: **Crown** for Project Owners, **ShieldCheck** for Reviewers, **Code** for Developers, **FolderGit2** for Projects, glowing pulse for the current user.
+  * Live updates: listens for Socket.IO `connections:fix` events and merges into the TanStack Query cache without page refresh.
+  * Accessible list/table view toggle and full keyboard navigation.
+  * Filterable Recent Fixes panel (7d / 14d / 30d) with clickable links to bug details.
+* **Multi-Tenant Security & Isolation**:
+  * Connections graph API (`GET /api/connections`) enforces strict privacy boundaries: users only see peers and projects they actively share membership in.
+  * Isolated user test account (`charlie@isolated.dev`) verifies zero cross-workspace data leakage.
 * **Authentication & Profiles**:
   * Secure registration and login using JWT and bcrypt (cost factor 12).
   * Rate-limited auth routes (20 attempts / 15 mins).
@@ -41,7 +56,7 @@ A fast, real-time collaborative bug tracker with gamification designed for stude
 * **Real-Time Collaboration (Socket.IO)**:
   * Handshake authenticated with JWT.
   * Project-level (`project:<id>`) and user-level (`user:<id>`) rooms.
-  * Live events update the TanStack Query cache automatically without page reloads: `bug:created`, `bug:updated`, `bug:assigned`, `bug:moved`, `bug:resolved`, `bug:reopened`, `comment:created`, `notification:new`, `achievement:unlocked`, `leaderboard:updated`.
+  * Live events update TanStack Query cache automatically: `bug:created`, `bug:updated`, `bug:assigned`, `bug:moved`, `bug:resolved`, `bug:reopened`, `comment:created`, `notification:new`, `achievement:unlocked`, `leaderboard:updated`, `connections:fix`.
 * **Gamification & Anti-Abuse Engine**:
   * XP awarded on `REVIEW` $\rightarrow$ `RESOLVED` transitions:
     * Base XP: Low (10), Medium (20), High (35), Critical (50).
@@ -114,16 +129,17 @@ npm run db:migrate
 
 ### 5. Seed Demo Data
 
-Run the database seed script to populate demo users, achievements, the **Sagar Drishti (SD)** project, and sample bugs:
+Run the database seed script to populate demo users, achievements, the **Sagar Drishti (SD)** project, sample bugs, and the isolated **Quantum Canvas (QC)** workspace:
 
 ```sh
 npm run seed
 ```
 
 **Seeded Demo Accounts** (Password for all: `password123`):
-* `samar@demo.dev` (Role: **OWNER**)
-* `rahul@demo.dev` (Role: **REVIEWER**)
-* `aryan@demo.dev` (Role: **DEVELOPER**)
+* `samar@demo.dev` (Project: **Sagar Drishti**, Role: **OWNER**)
+* `rahul@demo.dev` (Project: **Sagar Drishti**, Role: **REVIEWER**)
+* `aryan@demo.dev` (Project: **Sagar Drishti**, Role: **DEVELOPER**)
+* `charlie@isolated.dev` (Project: **Quantum Canvas**, Role: **OWNER** - Isolated multi-tenant account)
 
 ---
 
@@ -146,8 +162,16 @@ npm run dev
 Run all test suites and static analysis tools:
 
 ```sh
-# Run all test suites (Auth, Phase 2 lifecycle, Realtime, Gamification, Polish)
+# Run all 6 test suites (Auth, Phase 2 lifecycle, Realtime, Gamification, Connections, Polish)
 npm test
+
+# Run individual test suites
+npm run test:auth
+npm run test:phase2
+npm run test:realtime
+npm run test:gamification
+npm run test:connections
+npm run test:polish
 
 # Type-check both client and server workspaces
 npm run typecheck
@@ -163,6 +187,12 @@ npm run build
 
 ## Demo Walkthrough
 
+### 1. Scroll-Tear Landing Page & Feedback
+1. Navigate to [http://localhost:5173](http://localhost:5173) while logged out.
+2. Experience the 5-chapter story: cover chapter with animated stamp badges, interactive 3D flip postcard, shuffling Polaroid cards, and the route map.
+3. Scroll to Chapter 5 and fill out the postcard contact form to submit feedback directly to `POST /api/feedback`.
+
+### 2. Multi-User Collaboration & Real-Time Sync
 1. Open [http://localhost:5173](http://localhost:5173) in two separate browser windows (or incognito).
 2. Log in as `samar@demo.dev` in Window 1 and `aryan@demo.dev` in Window 2.
 3. In Window 1, create a **CRITICAL** bug assigned to **Aryan**.
@@ -170,3 +200,9 @@ npm run build
 5. In Window 2, drag the card on the Kanban board from **TO DO** $\rightarrow$ **IN PROGRESS** $\rightarrow$ **REVIEW**. Window 1 updates live.
 6. In Window 1, approve the bug to **RESOLVED**.
 7. Window 2 triggers the **"BUG SQUASHED"** celebration overlay (+50 XP, unlocks "Critical Hit"), and the leaderboard updates instantly.
+
+### 3. Scoped Connections Radial Network
+1. In Window 1 or 2, navigate to **Connections** (`/connections` or press `Ctrl+K` and type `Connections`).
+2. View the pure SVG radial network with your avatar in the center, Sagar Drishti teammates in Ring 1, the SD project in Ring 2, and recent bug resolution pulses.
+3. Switch to the accessible list view or filter fixes by 7, 14, or 30 days.
+4. Log in as `charlie@isolated.dev` in a private window: Charlie's radial network only displays Charlie and Quantum Canvas (QC), proving strict multi-tenant privacy.
