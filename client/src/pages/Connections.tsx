@@ -17,7 +17,12 @@ export function Connections() {
 
   const { data, isLoading, error } = useQuery<ConnectionsResponse>({
     queryKey: ['connections', days],
-    queryFn: () => api<ConnectionsResponse>(`/connections?days=${days}`, {}, token ?? undefined),
+    queryFn: () =>
+      api<ConnectionsResponse>(
+        `/connections?days=${days}`,
+        {},
+        token ?? undefined,
+      ),
     enabled: !!token,
     staleTime: 30_000,
   });
@@ -52,7 +57,9 @@ export function Connections() {
             Failed to load connections graph
           </p>
           <p className="text-xs text-muted-foreground">
-            {error instanceof Error ? error.message : 'Please check your connection and try again.'}
+            {error instanceof Error
+              ? error.message
+              : 'Please check your connection and try again.'}
           </p>
         </div>
       </div>
@@ -76,7 +83,8 @@ export function Connections() {
             </h1>
           </div>
           <p className="mt-1 font-mono text-xs text-muted-foreground">
-            Personalized interaction network and live resolution feed
+            Explore your team, projects and reviewed fixes. Click to zoom into a
+            connection.
           </p>
         </div>
 
@@ -92,7 +100,7 @@ export function Connections() {
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               }`}
             >
-              <Network size={14} /> Radial Graph
+              <Network size={14} /> Network Graph
             </button>
             <button
               type="button"
@@ -119,11 +127,14 @@ export function Connections() {
             Join a Project to See Your Connections
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Your connection network maps the teammates you share projects with, bugs you
-            collaborate on, and recent fixes verified by reviewers.
+            Your connection network maps the teammates you share projects with,
+            bugs you collaborate on, and recent fixes verified by reviewers.
           </p>
           <div className="pt-2">
-            <Button asChild className="gap-2 font-mono text-xs uppercase tracking-wider">
+            <Button
+              asChild
+              className="gap-2 font-mono text-xs uppercase tracking-wider"
+            >
               <Link to="/projects">
                 <FolderPlus size={14} /> Browse or Create Projects
               </Link>
@@ -132,9 +143,9 @@ export function Connections() {
         </div>
       ) : (
         /* Active Connections View */
-        <div className="grid gap-6 lg:grid-cols-12 items-start">
-          {/* Main Visual: Radial Graph or Accessible List */}
-          <div className="lg:col-span-8">
+        <div className="grid gap-6 items-start">
+          {/* Main Visual: Network Graph or Accessible List */}
+          <div className="min-w-0">
             {viewMode === 'graph' ? (
               <RadialGraph
                 meId={user?.id ?? data.me.id}
@@ -152,7 +163,7 @@ export function Connections() {
           </div>
 
           {/* Right Column: "Fixed Recently" Live Stream */}
-          <div className="lg:col-span-4">
+          <div className="min-w-0">
             <RecentFixesPanel
               days={days}
               onDaysChange={setDays}
